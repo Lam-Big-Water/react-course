@@ -21,18 +21,51 @@ const App = () => {
       objectID: 1,
     },
   ]
+
+  // A
+  const handleSearch = (event) => {
+  // D
+    console.log(event.target.value);
+  }
   return (
     <div>
       <h1>My Hacker Stories</h1>
-      <Search />
+      {/* B */}
+      <Search onSearch = {handleSearch} />
+
       <hr />
 
       <hr />
-      {/* Receive data */}
+
       <List list={stories}/>
     </div>
   );
 }
+
+const Search = (props) => {
+
+  const [searchTerm, setSearchTerm] = React.useState('')
+  
+    const handleChange = (event) => {
+
+      setSearchTerm(event.target.value);
+      
+      // C
+      props.onSearch(event);
+    };
+    return (
+      <div>
+        <label htmlFor="search">Search: </label>
+        
+        <input id='search' type="text" onChange={handleChange}/>
+  
+        <p>
+          Searching for <strong>{searchTerm}</strong>.
+
+        </p>
+      </div>
+    )
+  }
 
 const List = (props) => (
     <ul>
@@ -40,7 +73,6 @@ const List = (props) => (
       {props.list.map((item) => (
         <Item key={item.objectID} item={item}/>
       ))}
-    {console.log(`List_render`)}
     </ul>
 );
 
@@ -52,44 +84,9 @@ const Item = (props) => (
     <span>{props.item.author}</span>
     <span>{props.item.num_comments}</span>
     <span>{props.item.points}</span>
-    {console.log(`Item_render`)}
   </li>
 );
 
-const Search = () => {
 
-const [searchTerm, setSearchTerm] = React.useState('')
-
-  const handleChange = (event) => {
-    // * whenever this stateful value changes the affected components will re-render to use it
-    setSearchTerm(event.target.value);
-
-    // synthetic event
-    console.log(event);
-    // value of target (here: input HTML element)
-    console.log(event.target.value);
-  }
-  return (
-    <div>
-      <label htmlFor="search">Search: </label>
-      {/* 
-        if handleChange is a function
-        which does not return a function
-        don't do this
-        <input onChange={handleChange()} />
-
-        do this instead
-        <input onChange={handleChange} />
-      */}
-      <input id='search' type="text" onChange={handleChange}/>
-
-      <p>
-        Searching for <strong>{searchTerm}</strong>.
-        {console.log(`search_render`)}
-
-      </p>
-    </div>
-  )
-}
 
 export default App; 
