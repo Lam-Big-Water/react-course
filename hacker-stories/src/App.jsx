@@ -1,6 +1,30 @@
 import * as React from 'react';
 
+const useStorageState = (initialState) => {
+  const [value, setValue] = React.useState(
+    localStorage.getItem('value') || initialState
+  );
 
+  React.useEffect(() => {
+    localStorage.setItem('value', value);
+  }, [value]);
+
+  return [value, setValue];
+  
+}
+// * pass in a flexible key
+// const useStorageState = (key, initialState) => {
+//   const [value, setValue] = React.useState(
+//     localStorage.getItem(key) || initialState
+//   );
+
+//   React.useEffect(() => {
+//     localStorage.setItem(key, value);
+//   }, [value, key]);
+
+//   return [value, setValue];
+  
+// }
 
 const App = () => {
   const stories = [
@@ -22,14 +46,7 @@ const App = () => {
     },
   ]
 
-  const [searchTerm, setSearchTerm] = React.useState(
-    localStorage.getItem('search') || 'React'
-  );
-
-  React.useEffect(() => {
-    localStorage.setItem('search', searchTerm);
-  }, [searchTerm]);
-
+  const [searchTerm, setSearchTerm] = useStorageState('React');
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -56,9 +73,6 @@ const App = () => {
 
 const Search = ({search, onSearch}) => {
 
-  // * destructuring
-  // const {search, onSearch} = props;
-
   return (
     <div>
         <label htmlFor="search">Search: </label>
@@ -70,7 +84,6 @@ const Search = ({search, onSearch}) => {
 
 const List = ({list}) => (
     <ul>
-      {/* Distribute data */}
       {list.map(({objectID, ...item}) => (
         <Item key={objectID} {...item}/>
       ))}
@@ -79,7 +92,6 @@ const List = ({list}) => (
 
 const Item = ({title, url, author, num_comments, points}) => {
 
-    // * nested destructuring
     return (
       <li>
         <span>
