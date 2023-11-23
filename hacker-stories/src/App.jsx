@@ -59,6 +59,14 @@ const App = () => {
   return (
     <div>
       <h1>My Hacker Stories</h1>
+
+      <InputWithLabel
+        id="search"
+        label="Search"
+        value={searchTerm}
+        onInputChange={handleSearch}
+      />
+
       {/* B */}
       <Search search={searchTerm} onSearch = {handleSearch} />
 
@@ -70,6 +78,20 @@ const App = () => {
     </div>
   );
 }
+
+const InputWithLabel = ({id, type = 'text', label, value, onInputChange}) => (
+  <>
+    <label htmlFor={id}>{label}</label>
+    &nbsp;
+    <input
+    id={id} 
+    type={type}
+    value={value}
+    onChange={onInputChange}
+    />
+  </>
+);
+
 
 const Search = ({search, onSearch}) => {
 
