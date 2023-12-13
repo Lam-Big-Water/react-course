@@ -1,52 +1,55 @@
 import * as React from 'react';
 
-const useStorageState = (initialState) => {
+const initialStories = [
+  {
+    title: 'React',
+    url: 'https://reactjs.org/',
+    author: 'Jordan Wal',
+    num_comments: 3,
+    points: 4,
+    objectID: 0,
+  },
+  {
+    title: 'Redux',
+    url: 'https://redux.js.org/',
+    author: 'Dan Abramov, Andrew Clark',
+    num_comments: 2,
+    points: 5,
+    objectID: 1,
+  },
+];
+
+
+const useStorageState = (key, initialState) => {
   const [value, setValue] = React.useState(
-    localStorage.getItem('value') || initialState
+    localStorage.getItem(key) || initialState
   );
 
   React.useEffect(() => {
-    localStorage.setItem('value', value);
-  }, [value]);
+    localStorage.setItem(key, value);
+  }, [value, key]);
 
   return [value, setValue];
   
 }
-// * pass in a flexible key
-// const useStorageState = (key, initialState) => {
-//   const [value, setValue] = React.useState(
-//     localStorage.getItem(key) || initialState
-//   );
 
-//   React.useEffect(() => {
-//     localStorage.setItem(key, value);
-//   }, [value, key]);
-
-//   return [value, setValue];
-  
-// }
 
 const App = () => {
-  const stories = [
-    {
-      title: 'React',
-      url: 'https://reactjs.org/',
-      author: 'Jordan Wal',
-      num_comments: 3,
-      points: 4,
-      objectID: 0,
-    },
-    {
-      title: 'Redux',
-      url: 'https://redux.js.org/',
-      author: 'Dan Abramov, Andrew Clark',
-      num_comments: 2,
-      points: 5,
-      objectID: 1,
-    },
-  ]
+  
+  const [searchTerm, setSearchTerm] = useStorageState(
+    'search',
+    'React'
+    );
 
-  const [searchTerm, setSearchTerm] = useStorageState('React');
+  const [stories, setStories] = React.useState(initialStories);
+
+  const handleRemoveStory = (item) => {
+    const newStories = stories.filter(
+      (story) => item.objectID !== story.objectID
+    );
+
+    setStories(newStories);
+  };
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -56,41 +59,35 @@ const App = () => {
   const searchedStories = stories.filter((story) =>
     story.title.toLowerCase().includes(searchTerm.toLocaleLowerCase())
   );
+
   return (
     <div>
       <h1>My Hacker Stories</h1>
 
       <InputWithLabel
-        id="search_1"
+        id="search"
         value={searchTerm}
+        isFocused
         onInputChange={handleSearch}
       >
-        <strong>Search what you want:</strong>
+        <strong>Search:</strong>
       </InputWithLabel>
 
-      {/* B */}
-      <Search search={searchTerm} onSearch = {handleSearch} />
-
       <hr />
 
-      <hr />
-
-      <List list={searchedStories}/>
+      <List list={searchedStories} onRemoveItem={handleRemoveStory} />
     </div>
   );
-}
+};
 
 const InputWithLabel = ({
-  id, type = 'text', value, onInputChange, isFocused, children
+  id, value, type = 'text', onInputChange, isFocused, children
 }) => {
 
-  // A
   const inputRef = React.useRef();
 
-  // C
   React.useEffect(() => {
     if (isFocused && inputRef.current) {
-      // D
       inputRef.current.focus();
     }
   }, [isFocused]);
@@ -99,7 +96,6 @@ const InputWithLabel = ({
     <>
       <label htmlFor={id}>{children}</label>
       &nbsp;
-      {/* B */}
       <input
       ref={inputRef}
       id={id} 
@@ -111,37 +107,32 @@ const InputWithLabel = ({
   );
 };
 
-
-const Search = ({search, onSearch}) => {
-
-  return (
-      <>
-        <label htmlFor="search">Search: </label>
-        
-        <input id='search' type="text" value={search} onChange={onSearch}/>
-      </>
-      // or use <React.Fragment> </React.Fragment>
-  );
-};
-
-const List = ({list}) => (
+const List = ({list, onRemoveItem}) => (
     <ul>
-      {list.map(({objectID, ...item}) => (
-        <Item key={objectID} {...item}/>
+      {list.map((item) => (
+        <Item 
+        key={item.objectID} 
+        item={item}
+        onRemoveItem={onRemoveItem}
+        />
       ))}
     </ul>
 );
 
-const Item = ({title, url, author, num_comments, points}) => {
-
+const Item = ({item, onRemoveItem}) => {
     return (
       <li>
         <span>
-          <a href={url}>{title}</a>
+          <a href={item.url}>{item.title}</a>
         </span>
-        <span>{author}</span>
-        <span>{num_comments}</span>
-        <span>{points}</span>
+        <span>{item.author}</span>
+        <span>{item.num_comments}</span>
+        <span>{item.points}</span>
+        <span>
+          <button type='button' onClick={() => onRemoveItem(item)}>
+            Dismiss
+          </button>
+        </span>
       </li>
     );
 };
